@@ -1,0 +1,9 @@
+1. One-Line Interview Definition
+
+Marshmallow is a Python library used for serialization, deserialization, and validation of data, especially when working with APIs.
+
+
+2.
+.dump() means:
+
+👉 Convert Python object → Dictionary

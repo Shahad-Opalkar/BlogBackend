@@ -1,4 +1,6 @@
-from app import db
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 #Model is a base class in SQLAlchemy that helps to create database tables
 class User(db.Model):
@@ -9,7 +11,9 @@ class User(db.Model):
 
     posts = db.relationship('Post', backref='author', lazy=True)
 
-    def _reper_ (self):
+    role = db.Column(db.String(20), default="reader")
+
+    def __repr__ (self):
         return f"User{self.username}"
     
 
