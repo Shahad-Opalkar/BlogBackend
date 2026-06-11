@@ -41,10 +41,32 @@ def create_post():
 @jwt_required()
 def get_posts():
 
-    current_user_id = get_jwt_identity()   # 👈 ADD THIS HERE
+    current_user_id = get_jwt_identity()   
 
-    posts = Post.query.all()
-    return posts_schema.jsonify(posts), 200
+    page = request.args.get("page", 1, type=int)
+
+    limit = request.args.get("limit", 10, type=int)
+
+    search = request.args.get("search", "", type=str)
+
+    query = Post.query
+
+    if search:
+        query = query.filter(Post.title.ilike(f"%{search}%"))
+
+    posts = query.paginate(
+    page=page,
+    per_page=limit,
+    error_out=False
+)
+
+    return jsonify({
+        "page": page,
+        "limit": limit,
+        "total_posts": posts.total,
+        "total_pages": posts.pages,
+        "posts": posts_schema.dump(posts.items)
+    })
 
 @post_bp.route("/my-posts",methods=["GET"])
 @jwt_required()
