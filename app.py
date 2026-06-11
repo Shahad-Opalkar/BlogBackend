@@ -2,6 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
+from flask import jsonify
+from exceptions import APIError
 
 from flask_jwt_extended import JWTManager   
 from dotenv import load_dotenv
@@ -29,6 +31,13 @@ from routes.post_routes import post_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(post_bp)
+
+@app.errorhandler(APIError)
+def handle_api_error(error):
+
+    return jsonify({
+        "error": error.message
+    }), error.status_code
 
 @app.route('/')
 def home():

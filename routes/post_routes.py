@@ -3,6 +3,8 @@ from model import db,Post,User
 from schemas import PostSchema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.role_guard import role_required
+from exceptions import NotFoundError,ForbiddenError,BadRequestError
+
 
 
 post_bp = Blueprint("post",__name__)
@@ -20,7 +22,7 @@ def create_post():
 
 
         if not data.get("title") or not data.get("content"):
-            return jsonify({"error": "Missing required fields"}), 400
+            raise BadRequestError("Missing required fields")
 
     
 
@@ -82,7 +84,7 @@ def get_user_posts(user_id):
 
     user = User.query.get(user_id)
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        raise NotFoundError("Post not found")
 
     posts = Post.query.filter_by(user_id=user_id).all()
     return posts_schema.jsonify(posts), 200
@@ -96,11 +98,12 @@ def update_post(post_id):
 
      post = db.session.get(Post, post_id)
      if not post:
-          return jsonify({"error":"Post not found"}),404
+        if not post:
+            raise NotFoundError("Post not found")
      
      if post.user_id != current_user_id:
-          return jsonify({"error":"Forbidden"}),403
-
+        raise ForbiddenError()
+     
      if data.get("title"):
         post.title = data["title"]
      if data.get("content"):
@@ -120,10 +123,10 @@ def delete_post(post_id):
     post = Post.query.get(post_id)
 
     if not post:
-        return jsonify({"error": "Post not found"}), 404
+        raise NotFoundError("Post not found")
 
     if post.user_id != current_user_id:
-        return jsonify({"error": "Forbidden"}), 403
+         raise ForbiddenError()
 
     db.session.delete(post)
     db.session.commit()
