@@ -4,6 +4,10 @@ from flask_marshmallow import Marshmallow
 from flask_bcrypt import Bcrypt
 from flask import jsonify
 from exceptions import APIError
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from extension import limiter
+import os
 
 from flask_jwt_extended import JWTManager   
 from dotenv import load_dotenv
@@ -24,6 +28,7 @@ with app.app_context():
 ma = Marshmallow(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
+limiter.init_app(app)
 
 from routes.aut_routes import auth_bp
 from routes.post_routes import post_bp
@@ -64,4 +69,8 @@ def create_app(testing=False):
     app.register_blueprint(post_bp)
 
     return app
-        
+
+print("DATABASE URI =", app.config["SQLALCHEMY_DATABASE_URI"])
+import os
+
+print("DB FILE:", os.path.abspath("instance/site.db"))
