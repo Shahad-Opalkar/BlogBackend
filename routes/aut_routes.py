@@ -3,12 +3,14 @@ from model import db,User
 from schemas import UserSchema
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_jwt_extended import create_access_token
+from extension import limiter
 
 auth_bp = Blueprint("auth",__name__)
 user_schema = UserSchema()
 
 
 @auth_bp.route("/register",methods=["POST"])
+@limiter.limit("5 per minute")
 def register():
     data = request.get_json()
 
@@ -30,6 +32,7 @@ def register():
     return user_schema.jsonify(new_user),201
 
 @auth_bp.route("/login",methods=["POST"])
+@limiter.limit("5 per minute")
 def login():
     data = request.json
 
